@@ -181,7 +181,7 @@ int main()
         unsigned int viewLoc  = glGetUniformLocation(ourShader.ID, "view");
         // pass them to the shaders (3 different ways)
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]); // wyh 这应该是传起始地址, 3种方式
         // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         ourShader.setMat4("projection", projection);
 

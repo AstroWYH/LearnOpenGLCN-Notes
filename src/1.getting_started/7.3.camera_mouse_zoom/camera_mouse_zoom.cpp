@@ -25,10 +25,11 @@ glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
 
+// wyh 新增的参数
 bool firstMouse = true;
 float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float pitch =  0.0f;
-float lastX =  800.0f / 2.0;
+float pitch =  0.0f; // wyh 借助上面的注释, 和小卡片我画的图理解
+float lastX =  800.0f / 2.0; // wyh 初始鼠标位置
 float lastY =  600.0 / 2.0;
 float fov   =  45.0f;
 
@@ -60,8 +61,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, mouse_callback); // wyh 注册鼠标移动回调函数
+    glfwSetScrollCallback(window, scroll_callback); // wyh 注册滚轮滚动回调函数
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -245,11 +246,13 @@ int main()
 
         // pass projection matrix to shader (note that in this case it could change every frame)
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("projection", projection); // wyh 由于fov要变, 所以projection放入循环
+        // wyh 一直在更新projection, fov靠滚轮
 
         // camera/view transformation
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        ourShader.setMat4("view", view);
+        ourShader.setMat4("view", view); // wyh view保留7.2的W、A、S、D移动
+        // wyh 一直在更新view, cameraFront靠鼠标, cameraPos靠WASD
 
         // render boxes
         glBindVertexArray(VAO);
@@ -284,7 +287,7 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window) // wyh 7.2主要内容
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -311,7 +314,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) // wyh 7.3主要新增
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -329,10 +332,10 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastY = ypos;
 
     float sensitivity = 0.1f; // change this value to your liking
-    xoffset *= sensitivity;
+    xoffset *= sensitivity; // wyh 这个灵敏度有点东西
     yoffset *= sensitivity;
 
-    yaw += xoffset;
+    yaw += xoffset; // wyh yaw是个角度, 拿角度加像素距离...只能说鼠标x移动了, 少加点角度到yaw上
     pitch += yoffset;
 
     // make sure that when pitch is out of bounds, screen doesn't get flipped
@@ -345,14 +348,14 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     front.y = sin(glm::radians(pitch));
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+    cameraFront = glm::normalize(front); // wyh 看我画的小卡片图理解
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
+    fov -= (float)yoffset; // wyh 看到的效果和W前进、D后退类似
     if (fov < 1.0f)
         fov = 1.0f;
     if (fov > 45.0f)

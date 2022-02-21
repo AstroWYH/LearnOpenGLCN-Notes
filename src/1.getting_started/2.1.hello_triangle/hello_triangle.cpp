@@ -135,7 +135,7 @@ int main()
         // input
         // -----
         processInput(window);
-
+        std::cout << "wyh triangle" << std::endl;
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

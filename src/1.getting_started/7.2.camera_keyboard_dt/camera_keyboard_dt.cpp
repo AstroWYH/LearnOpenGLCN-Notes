@@ -20,7 +20,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 // camera
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); // wyh 单位向量, 看向-z
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 // timing
@@ -235,7 +235,8 @@ int main()
         ourShader.use();
 
         // camera/view transformation
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); // wyh
+        // wyh lookAt函数需要一个位置, 一个目标方向, 一个向上方向
         ourShader.setMat4("view", view);
 
         // render boxes
@@ -271,20 +272,20 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window) // wyh 每帧间隔都检测更新
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    float cameraSpeed = static_cast<float>(2.5 * deltaTime);
+    float cameraSpeed = static_cast<float>(2.5 * deltaTime); // wyh 理解成距离
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        cameraPos += cameraSpeed * cameraFront; // wyh W前进
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        cameraPos -= cameraSpeed * cameraFront; // wyh S后退
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // wyh A左
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // wyh D右
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
