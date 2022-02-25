@@ -11,8 +11,8 @@ uniform mat4 projection;
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;  
+    FragPos = vec3(model * vec4(aPos, 1.0)); // wyh 片元(像素位置)位置
+    Normal = mat3(transpose(inverse(model))) * aNormal; // wyh 法线矩阵, 防止不等比缩放导致的异常
     
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

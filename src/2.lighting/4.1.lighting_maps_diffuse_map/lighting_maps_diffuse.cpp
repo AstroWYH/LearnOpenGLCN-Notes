@@ -161,7 +161,7 @@ int main()
     // shader configuration
     // --------------------
     lightingShader.use(); 
-    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.diffuse", 0); // wyh
 
 
     // render loop
@@ -306,7 +306,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 // utility function for loading a 2D texture from file
 // ---------------------------------------------------
-unsigned int loadTexture(char const * path)
+unsigned int loadTexture(char const * path) // wyh
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);

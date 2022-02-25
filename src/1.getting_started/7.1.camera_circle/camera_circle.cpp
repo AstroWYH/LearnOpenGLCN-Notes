@@ -225,7 +225,7 @@ int main()
         float camX = static_cast<float>(sin(glfwGetTime()) * radius);
         float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
         view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        ourShader.setMat4("view", view);
+        ourShader.setMat4("view", view); // wyh 摄像机位置一直变, 所以观察矩阵一直变, 用looAt求观察矩阵
 
         // render boxes
         glBindVertexArray(VAO);

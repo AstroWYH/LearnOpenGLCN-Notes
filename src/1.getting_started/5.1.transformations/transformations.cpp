@@ -144,7 +144,7 @@ int main()
     // -------------------------------------------------------------------------------------------
     ourShader.use(); 
     ourShader.setInt("texture1", 0);
-    ourShader.setInt("texture2", 1);
+    ourShader.setInt("texture2", 1); // wyh 此texture2指的是shader里的uniform变量, 赋值为0、1, 给采样器分配的位置值
 
 
     // render loop
@@ -167,14 +167,15 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // create transformations
-        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first // wyh 先弄一个单位变换矩阵
+        // transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f)); // wyh 平移
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f)); // wyh 绕z轴旋转, 度数随时间变化
 
         // get matrix's uniform location and set matrix
         ourShader.use();
         unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        // wyh 变换矩阵会随着时间变化, 每次都要给uniform矩阵赋值
 
         // render container
         glBindVertexArray(VAO);
