@@ -197,7 +197,7 @@ int main()
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f); // wyh 固定平行光方向向量
         lightingShader.setVec3("viewPos", camera.Position);
 
         // light properties
@@ -243,7 +243,7 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-
+        // wyh 平行光, 暂时去掉灯(点光源)
         // a lamp object is weird when we only have a directional light, don't render the light object
         // lightCubeShader.use();
         // lightCubeShader.setMat4("projection", projection);

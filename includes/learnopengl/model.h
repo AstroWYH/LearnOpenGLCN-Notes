@@ -8,7 +8,7 @@
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <assimp/postprocess.h> // wyh 可见leanring opengl代码里是写好了头文件引用这个库的, 只是需要我们把库配置好链接, 把头文件放到include里即可
 
 #include <learnopengl/mesh.h>
 #include <learnopengl/shader.h>

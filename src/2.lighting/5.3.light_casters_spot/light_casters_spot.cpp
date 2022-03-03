@@ -198,8 +198,8 @@ int main()
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
         lightingShader.setVec3("light.position", camera.Position);
-        lightingShader.setVec3("light.direction", camera.Front);
-        lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setVec3("light.direction", camera.Front); // wyh SpotDir, 聚光灯所指方向
+        lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f))); // wyh 聚光灯切光角
         lightingShader.setVec3("viewPos", camera.Position);
 
         // light properties

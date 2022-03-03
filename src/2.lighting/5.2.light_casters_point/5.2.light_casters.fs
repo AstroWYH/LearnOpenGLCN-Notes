@@ -8,13 +8,13 @@ struct Material {
 }; 
 
 struct Light {
-    vec3 position;  
+    vec3 position; // wyh 点光源 还原了灯的pos位置向量(w = 1)
   
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 	
-    float constant;
+    float constant; // wyh 增加点光源衰减的常数项、一次项、二次项
     float linear;
     float quadratic;
 };
@@ -34,7 +34,7 @@ void main()
   	
     // diffuse 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(light.position - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos); // wyh 还原点光源的光照方向计算公式
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;  
     
@@ -45,10 +45,10 @@ void main()
     vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
     
     // attenuation
-    float distance    = length(light.position - FragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float distance    = length(light.position - FragPos); // wyh 距离d用于计算光衰
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); // wyh 点光源光衰
 
-    ambient  *= attenuation;  
+    ambient  *= attenuation; // wyh 光衰叠加
     diffuse   *= attenuation;
     specular *= attenuation;   
         

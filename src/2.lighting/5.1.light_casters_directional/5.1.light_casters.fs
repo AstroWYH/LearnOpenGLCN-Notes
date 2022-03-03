@@ -9,7 +9,7 @@ struct Material {
 
 struct Light {
     //vec3 position;
-    vec3 direction;
+    vec3 direction; // wyh 平行光方向向量(w = 0)
 
     vec3 ambient;
     vec3 diffuse;
@@ -32,7 +32,7 @@ void main()
     // diffuse 
     vec3 norm = normalize(Normal);
     // vec3 lightDir = normalize(light.position - FragPos);
-    vec3 lightDir = normalize(-light.direction);  
+    vec3 lightDir = normalize(-light.direction); // wyh 不再由光源到顶点位置(FragPos)计算, 直接固定光源平行光方向, 后续对漫反射项和高光项造成的变化进行调整即可
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;  
     

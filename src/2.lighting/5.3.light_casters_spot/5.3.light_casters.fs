@@ -17,7 +17,7 @@ struct Light {
     vec3 diffuse;
     vec3 specular;
 	
-    float constant;
+    float constant; // wyh 聚光灯也要考虑点光源的光衰?
     float linear;
     float quadratic;
 };
@@ -32,11 +32,14 @@ uniform Light light;
 
 void main()
 {
-    vec3 lightDir = normalize(light.position - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos); // wyh 灯的光源方向, 跟点光源一样
     
     // check if lighting is inside the spotlight cone
-    float theta = dot(lightDir, normalize(-light.direction)); 
-    
+    float theta = dot(lightDir, normalize(-light.direction)); // wyh [注]light.direction是聚光灯直射方向(SpotDir), 和lightDir不同, 是camera.Front
+
+    // wyh 比的主要就是顶点到光源和直射方向的夹角, 和聚光半径的切光角大小, 好判断在聚光灯内外
+    // wyh 所以目前看起来聚光灯, 主要是cutOff这个参数拿来限制内外, 其他只是稍有不同
+    // wyh 聚光灯内, 因为用的余弦比较(避免反余弦求角度计算量大), 所以符号反过来了
     if(theta > light.cutOff) // remember that we're working with angles as cosines instead of degrees so a '>' is used.
     {    
         // ambient
@@ -57,14 +60,15 @@ void main()
         float distance    = length(light.position - FragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
 
+        // wyh 当前聚光灯不考虑环境光的衰减
         // ambient  *= attenuation; // remove attenuation from ambient, as otherwise at large distances the light would be darker inside than outside the spotlight due the ambient term in the else branche
         diffuse   *= attenuation;
-        specular *= attenuation;   
+        specular *= attenuation;
             
         vec3 result = ambient + diffuse + specular;
         FragColor = vec4(result, 1.0);
     }
-    else 
+    else // wyh 聚光内外, 只考虑环境光
     {
         // else, use ambient light so scene isn't completely dark outside the spotlight.
         FragColor = vec4(light.ambient * texture(material.diffuse, TexCoords).rgb, 1.0);
