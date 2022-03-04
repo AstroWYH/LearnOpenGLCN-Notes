@@ -74,7 +74,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LESS); // wyh 使用了正常的近处z覆盖远处
 
     // build and compile shaders
     // -------------------------
@@ -137,7 +137,7 @@ int main()
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f
     };
     // cube VAO
-    unsigned int cubeVAO, cubeVBO;
+    unsigned int cubeVAO, cubeVBO; // wyh 箱子
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &cubeVBO);
     glBindVertexArray(cubeVAO);
@@ -149,7 +149,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
     // plane VAO
-    unsigned int planeVAO, planeVBO;
+    unsigned int planeVAO, planeVBO; // wyh 地面
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
     glBindVertexArray(planeVAO);
@@ -164,12 +164,12 @@ int main()
     // load textures
     // -------------
     unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/marble.jpg").c_str());
-    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
+    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str()); // wyh 2张纹理
 
     // shader configuration
     // --------------------
     shader.use();
-    shader.setInt("texture1", 0);
+    shader.setInt("texture1", 0); // wyh 为什么2张纹理, 1个shader, 1个sampler2D采样器, 难道是共用?
 
     // render loop
     // -----------
@@ -208,9 +208,9 @@ int main()
         shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // floor
-        glBindVertexArray(planeVAO);
+        glBindVertexArray(planeVAO); // wyh 只能理解成因为有2个不同VAO, 切换绑定, 所以2张纹理只需要1个sampler2D
         glBindTexture(GL_TEXTURE_2D, floorTexture);
-        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setMat4("model", glm::mat4(1.0f)); // wyh 更神奇的是, 箱子和地面共用同一个shader，同一套mvp矩阵, 可能是因为切换了VAO, 所以可以共用?
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
