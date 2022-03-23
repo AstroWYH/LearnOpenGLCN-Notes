@@ -7,5 +7,5 @@ uniform sampler2D texture1;
 
 void main()
 {    
-    FragColor = texture(texture1, TexCoords);
+    FragColor = texture(texture1, TexCoords); // wyh 6.1立方体没变化
 }

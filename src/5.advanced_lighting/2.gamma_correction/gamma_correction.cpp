@@ -76,8 +76,8 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND); // wyh 开启了透明度混合
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // wyh 透明度混合, 源和目标, 之前和当前的颜色叠加
 
     // build and compile shaders
     // -------------------------
@@ -113,7 +113,7 @@ int main()
     // load textures
     // -------------
     unsigned int floorTexture               = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str(), false);
-    unsigned int floorTextureGammaCorrected = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str(), true);
+    unsigned int floorTextureGammaCorrected = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str(), true); // wyh gamma校正1张一样的纹理图?
 
     // shader configuration
     // --------------------
@@ -122,13 +122,13 @@ int main()
 
     // lighting info
     // -------------
-    glm::vec3 lightPositions[] = {
+    glm::vec3 lightPositions[] = { // wyh 4个光源的位置
         glm::vec3(-3.0f, 0.0f, 0.0f),
         glm::vec3(-1.0f, 0.0f, 0.0f),
         glm::vec3 (1.0f, 0.0f, 0.0f),
         glm::vec3 (3.0f, 0.0f, 0.0f)
     };
-    glm::vec3 lightColors[] = {
+    glm::vec3 lightColors[] = { // wyh 4个光源的颜色
         glm::vec3(0.25),
         glm::vec3(0.50),
         glm::vec3(0.75),
@@ -161,14 +161,14 @@ int main()
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
         // set light uniforms
-        glUniform3fv(glGetUniformLocation(shader.ID, "lightPositions"), 4, &lightPositions[0][0]);
-        glUniform3fv(glGetUniformLocation(shader.ID, "lightColors"), 4, &lightColors[0][0]);
+        glUniform3fv(glGetUniformLocation(shader.ID, "lightPositions"), 4, &lightPositions[0][0]); // wyh
+        glUniform3fv(glGetUniformLocation(shader.ID, "lightColors"), 4, &lightColors[0][0]); // wyh
         shader.setVec3("viewPos", camera.Position);
-        shader.setInt("gamma", gammaEnabled);
+        shader.setInt("gamma", gammaEnabled); // wyh gamma校正开关
         // floor
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gammaEnabled ? floorTextureGammaCorrected : floorTexture);
+        glBindTexture(GL_TEXTURE_2D, gammaEnabled ? floorTextureGammaCorrected : floorTexture); // wyh gamma校正开不开, 居然用不同的纹理
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         std::cout << (gammaEnabled ? "Gamma enabled" : "Gamma disabled") << std::endl;
@@ -204,7 +204,7 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !gammaKeyPressed)
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !gammaKeyPressed) // wyh 提供空格键切换gamma校正开关
     {
         gammaEnabled = !gammaEnabled;
         gammaKeyPressed = true;

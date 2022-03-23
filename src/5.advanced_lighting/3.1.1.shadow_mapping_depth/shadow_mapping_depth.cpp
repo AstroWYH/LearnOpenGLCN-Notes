@@ -83,8 +83,8 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader simpleDepthShader("3.1.1.shadow_mapping_depth.vs", "3.1.1.shadow_mapping_depth.fs");
-    Shader debugDepthQuad("3.1.1.debug_quad.vs", "3.1.1.debug_quad_depth.fs");
+    Shader simpleDepthShader("3.1.1.shadow_mapping_depth.vs", "3.1.1.shadow_mapping_depth.fs"); // wyh
+    Shader debugDepthQuad("3.1.1.debug_quad.vs", "3.1.1.debug_quad_depth.fs"); // wyh
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -119,21 +119,28 @@ int main()
 
     // configure depth map FBO
     // -----------------------
-    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024; // wyh 深度贴图的分辨率
+    // wyh 第一步我们需要生成一张深度贴图(Depth Map)。深度贴图是从光的透视图里渲染的深度纹理，用它计算阴影。因为我们需要将场景的渲染结果储存到一个纹理中，我们将再次需要帧缓冲。
+    // wyh 首先，我们要为渲染的深度贴图创建一个帧缓冲对象：
     unsigned int depthMapFBO;
-    glGenFramebuffers(1, &depthMapFBO);
+    glGenFramebuffers(1, &depthMapFBO); // wyh 深度贴图
     // create depth texture
+    // wyh 然后，创建一个2D纹理，提供给帧缓冲的深度缓冲使用：
     unsigned int depthMap;
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glGenTextures(1, &depthMap); // wyh 核心: depthMap和depthMapFBO是纽带, depthMapFBO是帧缓冲、深度缓冲, depthMap是深度贴图、纹理
+    glBindTexture(GL_TEXTURE_2D, depthMap); // wyh 核心: 说白了就是生成1张深度纹理, 然后从这张深度纹理采样变成颜色可视化展现出来
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // attach depth texture as FBO's depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+
+    // wyh 我们需要的只是在从光的透视图下渲染场景的时候深度信息，所以颜色缓冲没有用。然而，不包含颜色缓冲的帧缓冲对象是不完整的，
+    // wyh 所以我们需要显式告诉OpenGL我们不适用任何颜色数据进行渲染。我们通过将调用glDrawBuffer和glReadBuffer把读和绘制缓冲设置为GL_NONE来做这件事。
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO); // wyh 我的理解: 深度贴图渲染到depthMapFBO里
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0); // wyh 熟悉的ATTACHMENT depthMap和depthMapFBO的巨头会晤！！！
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -172,23 +179,27 @@ int main()
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
         float near_plane = 1.0f, far_plane = 7.5f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane); // wyh 平行光采用正交投影矩阵
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
+        lightSpaceMatrix = lightProjection * lightView; // wyh 世界空间到光源空间(裁剪空间)的转换矩阵
         // render scene from light's point of view
         simpleDepthShader.use();
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        // wyh 合理配置将深度值渲染到纹理的帧缓冲后，我们就可以开始第一步了：生成深度贴图。两个步骤的完整的渲染阶段，看起来有点像这样：
+        // wyh 这里一定要记得调用glViewport。因为阴影贴图经常和我们原来渲染的场景（通常是窗口分辨率）有着不同的分辨率，我们需要改变视口（viewport）的参数以适应阴影贴图的尺寸。
+        // wyh 如果我们忘了更新视口参数，最后的深度贴图要么太小要么就不完整。
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT); // wyh 核心: 2个完整的渲染阶段, 1个是深度贴图的渲染
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO); // wyh 核心的核心: depthMapFBO就是纽带！！！教程: 把我们把生成的深度纹理作为帧缓冲的深度缓冲
             glClear(GL_DEPTH_BUFFER_BIT);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, woodTexture);
-            renderScene(simpleDepthShader);
+            // wyh 这里的RenderScene函数的参数是一个着色器程序（shader program），它调用所有相关的绘制函数，并在需要的地方设置相应的模型矩阵。
+            renderScene(simpleDepthShader); // wyh 自定义函数, 渲染1个地面, 3个立方体的深度 // 渲染至深度贴图
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // wyh 核心: 2个完整的渲染阶段, 1个是常规的屏幕的渲染
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render Depth map to quad for visual debugging
@@ -197,8 +208,11 @@ int main()
         debugDepthQuad.setFloat("near_plane", near_plane);
         debugDepthQuad.setFloat("far_plane", far_plane);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderQuad();
+        glBindTexture(GL_TEXTURE_2D, depthMap); // wyh 核心: 这个depthMap很关键, 到这一切都合理了, 3.1.1.debug_quad_depth就是对3.1.1.shadow_mapping_depth的一个展示而已
+        // wyh 3.1小节还未出现光源视角阴影和观察视角阴影比长度呢
+        renderQuad(); // wyh 自定义的函数, 将深度贴图渲染到四边形上的片段着色器：
+        // wyh 最后，在光的透视图视角下，很完美地用每个可见片段的最近深度填充了深度缓冲。
+        // wyh 通过将这个纹理投射到一个2D四边形上（和我们在帧缓冲一节做的后处理过程类似），就能在屏幕上显示出来，我们会获得这样的东西：3.1
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -217,7 +231,7 @@ int main()
 
 // renders the 3D scene
 // --------------------
-void renderScene(const Shader &shader)
+void renderScene(const Shader &shader) // wyh 渲染1个地面, 3个立方体的深度
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);

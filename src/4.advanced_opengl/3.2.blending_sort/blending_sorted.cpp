@@ -74,8 +74,9 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND); // wyh 透明混合的关键
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // wyh 透明混合的方式, 就是那个公式
+    // wyh 核心就是把这开启这2开关(ALPHA纹理自带的去计算), 然后保证渲染顺序, 关闭深度写入(unity shader说的, 但是本教程没提过深度写入, 只讲了深度测试) 
 
     // build and compile shaders
     // -------------------------
@@ -137,7 +138,7 @@ int main()
         -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f
     };
-    float transparentVertices[] = {
+    float transparentVertices[] = { // wyh 草四边形换成了窗户四边形, 四边形顶点没变, 纹理从草换成了窗户
         // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
         0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
@@ -170,7 +171,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     // transparent VAO
-    unsigned int transparentVAO, transparentVBO;
+    unsigned int transparentVAO, transparentVBO; // wyh 跟3.1一样, 3个VAO、VBO (箱子、地面、窗户)
     glGenVertexArrays(1, &transparentVAO);
     glGenBuffers(1, &transparentVBO);
     glBindVertexArray(transparentVAO);
@@ -186,11 +187,11 @@ int main()
     // -------------
     unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/marble.jpg").c_str());
     unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/window.png").c_str());
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/window.png").c_str()); // wyh 草纹理换成了窗户纹理
 
     // transparent window locations
     // --------------------------------
-    vector<glm::vec3> windows
+    vector<glm::vec3> windows // wyh 窗户的位置坐标, 主要用于保证渲染顺序, 计算和摄像机位置的距离, 保证透明物体的深度从远到近渲染
     {
         glm::vec3(-1.5f, 0.0f, -0.48f),
         glm::vec3( 1.5f, 0.0f, 0.51f),
@@ -220,11 +221,11 @@ int main()
 
         // sort the transparent windows before rendering
         // ---------------------------------------------
-        std::map<float, glm::vec3> sorted;
+        std::map<float, glm::vec3> sorted; // wyh 透明物体渲染顺序排序map
         for (unsigned int i = 0; i < windows.size(); i++)
         {
-            float distance = glm::length(camera.Position - windows[i]);
-            sorted[distance] = windows[i];
+            float distance = glm::length(camera.Position - windows[i]); // wyh 根据map对key自动升序排序的属性, 进行插入
+            sorted[distance] = windows[i]; // wyh map里是从近到远的window位置
         }
 
         // render
@@ -249,22 +250,22 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         shader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh 渲染/绘制箱子
         // floor
         glBindVertexArray(planeVAO);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         model = glm::mat4(1.0f);
         shader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染/绘制地面
         // windows (from furthest to nearest)
         glBindVertexArray(transparentVAO);
         glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it) // wyh 用了个反向迭代器来遍历map, 保证从远到近渲染
         {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, it->second);
+            model = glm::translate(model, it->second); // wyh window的位置, 还是在这里得到了平移体现, 只不过保证了从远到近的渲染顺序
             shader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染/绘制窗户
         }
 
 

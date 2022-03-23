@@ -7,7 +7,7 @@ out VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec2 TexCoords;
-} vs_out;
+} vs_out; // wyh 接口块, 类似于结构体
 
 uniform mat4 projection;
 uniform mat4 view;

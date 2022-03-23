@@ -112,7 +112,7 @@ int main()
 
     // load textures
     // -------------
-    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str());
+    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str()); // wyh
     
     // shader configuration
     // --------------------
@@ -151,7 +151,7 @@ int main()
         // set light uniforms
         shader.setVec3("viewPos", camera.Position);
         shader.setVec3("lightPos", lightPos);
-        shader.setInt("blinn", blinn);
+        shader.setInt("blinn", blinn); // wyh 光照就是会有一堆赋值
         // floor
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);

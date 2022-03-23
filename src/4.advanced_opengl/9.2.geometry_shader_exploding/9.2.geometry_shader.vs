@@ -4,7 +4,7 @@ layout (location = 2) in vec2 aTexCoords;
 
 out VS_OUT {
     vec2 texCoords;
-} vs_out;
+} vs_out; // wyh
 
 uniform mat4 projection;
 uniform mat4 view;

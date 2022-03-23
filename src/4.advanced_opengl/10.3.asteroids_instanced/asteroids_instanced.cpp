@@ -76,13 +76,13 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader asteroidShader("10.3.asteroids.vs", "10.3.asteroids.fs");
-    Shader planetShader("10.3.planet.vs", "10.3.planet.fs");
+    Shader asteroidShader("10.3.asteroids.vs", "10.3.asteroids.fs"); // wyh
+    Shader planetShader("10.3.planet.vs", "10.3.planet.fs"); // wyh
 
     // load models
     // -----------
-    Model rock(FileSystem::getPath("resources/objects/rock/rock.obj"));
-    Model planet(FileSystem::getPath("resources/objects/planet/planet.obj"));
+    Model rock(FileSystem::getPath("resources/objects/rock/rock.obj")); // wyh
+    Model planet(FileSystem::getPath("resources/objects/planet/planet.obj")); // wyh
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
@@ -114,7 +114,7 @@ int main()
         model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
 
         // 4. now add to list of matrices
-        modelMatrices[i] = model;
+        modelMatrices[i] = model; // wyh 依旧复杂的岩石model变换矩阵
     }
 
     // configure instanced array
@@ -122,7 +122,7 @@ int main()
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW); // wyh 1000个model变换矩阵居然在这体现的
 
     // set transformation matrices as an instance vertex attribute (with divisor 1)
     // note: we're cheating a little by taking the, now publicly declared, VAO of the model's mesh(es) and adding new vertexAttribPointers
@@ -130,10 +130,10 @@ int main()
     // -----------------------------------------------------------------------------------------------------------------------------------
     for (unsigned int i = 0; i < rock.meshes.size(); i++)
     {
-        unsigned int VAO = rock.meshes[i].VAO;
+        unsigned int VAO = rock.meshes[i].VAO; // wyh 抽象起来了, 对每1个网格mesh, 都有1个VAO吗?还真是, mesh那里有
         glBindVertexArray(VAO);
         // set attribute pointers for matrix (4 times vec4)
-        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(3); // wyh 为什么从3开始? 教程应该有讲, 好像是教程之前有2, 所以他继续从3开始, 但是这里并不需要
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
         glEnableVertexAttribArray(4);
         glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
@@ -145,7 +145,7 @@ int main()
         glVertexAttribDivisor(3, 1);
         glVertexAttribDivisor(4, 1);
         glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
+        glVertexAttribDivisor(6, 1); // wyh 教程: 这个函数告诉了OpenGL该什么时候更新顶点属性的内容至新一组数据; 为1表示希望在渲染1个新实例的时候更新顶点属性
 
         glBindVertexArray(0);
     }
@@ -184,7 +184,7 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
         model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
         planetShader.setMat4("model", model);
-        planet.Draw(planetShader);
+        planet.Draw(planetShader); // wyh 行星依旧朴实无华
 
         // draw meteorites
         asteroidShader.use();
@@ -193,8 +193,8 @@ int main()
         glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id); // note: we also made the textures_loaded vector public (instead of private) from the model class.
         for (unsigned int i = 0; i < rock.meshes.size(); i++)
         {
-            glBindVertexArray(rock.meshes[i].VAO);
-            glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(rock.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount);
+            glBindVertexArray(rock.meshes[i].VAO); // wyh 对每1个网格mesh VAO, mesh那章说了吗?是的
+            glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(rock.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount); // wyh 只能说有点小抽象, 9.3反正这里就是渲染1000个, 代码之间的关系没有特别好的理解, 也因为用的函数越来越抽象吧
             glBindVertexArray(0);
         }
 

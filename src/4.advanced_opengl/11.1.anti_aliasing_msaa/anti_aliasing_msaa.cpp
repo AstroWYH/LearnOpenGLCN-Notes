@@ -73,15 +73,15 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE); // enabled by default on some drivers, but not all so always enable to make sure
+    glEnable(GL_MULTISAMPLE); // enabled by default on some drivers, but not all so always enable to make sure // wyh 核心: 就这一句开启MSAA, 教程说还有一句glfwWindowHint(GLFW_SAMPLES, 4), 但这里没出现
 
     // build and compile shaders
     // -------------------------
-    Shader shader("11.1.anti_aliasing.vs", "11.1.anti_aliasing.fs");
+    Shader shader("11.1.anti_aliasing.vs", "11.1.anti_aliasing.fs"); // wyh
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float cubeVertices[] = {
+    float cubeVertices[] = { // wyh 立方体6个面, 1个面6个顶点
         // positions       
         -0.5f, -0.5f, -0.5f,
          0.5f, -0.5f, -0.5f,
@@ -133,7 +133,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // wyh 没见过比这更简单的了
 
     // render loop
     // -----------
@@ -159,10 +159,10 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
         shader.setMat4("projection", projection);
         shader.setMat4("view", camera.GetViewMatrix());
-        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setMat4("model", glm::mat4(1.0f)); // wyh 这么朴实无华的mvp矩阵变换
 
         glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);     
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh 渲染这36个点形成的立方体
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

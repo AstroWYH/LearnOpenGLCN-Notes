@@ -80,14 +80,14 @@ int main()
 
     // load models
     // -----------
-    Model rock(FileSystem::getPath("resources/objects/rock/rock.obj"));
-    Model planet(FileSystem::getPath("resources/objects/planet/planet.obj"));
+    Model rock(FileSystem::getPath("resources/objects/rock/rock.obj")); // wyh 周围岩石的模型
+    Model planet(FileSystem::getPath("resources/objects/planet/planet.obj")); // wyh 中间行星的模型
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 1000;
+    unsigned int amount = 1000; // wyh 1000个岩石
     glm::mat4* modelMatrices;
-    modelMatrices = new glm::mat4[amount];
+    modelMatrices = new glm::mat4[amount]; // wyh
     srand(static_cast<unsigned int>(glfwGetTime())); // initialize random seed
     float radius = 50.0;
     float offset = 2.5f;
@@ -113,7 +113,7 @@ int main()
         model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
 
         // 4. now add to list of matrices
-        modelMatrices[i] = model;
+        modelMatrices[i] = model; // wyh 存放这1000个模型的变换矩阵, 一顿操作达到环绕的美丽效果
     }
 
     // render loop
@@ -144,16 +144,16 @@ int main()
 
         // draw planet
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f)); // wyh 行星的model变换朴实无华
         model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
         shader.setMat4("model", model);
-        planet.Draw(shader);
+        planet.Draw(shader); // wyh 行星的Draw
 
         // draw meteorites
-        for (unsigned int i = 0; i < amount; i++)
+        for (unsigned int i = 0; i < amount; i++) // wyh 1000次draw, 所以是naive版本
         {
-            shader.setMat4("model", modelMatrices[i]);
-            rock.Draw(shader);
+            shader.setMat4("model", modelMatrices[i]); // wyh 岩石的model变换就很复杂, 核心: 这个例子是naive版本, 没用本章中重点实例化
+            rock.Draw(shader); // wyh 岩石的Draw
         }     
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

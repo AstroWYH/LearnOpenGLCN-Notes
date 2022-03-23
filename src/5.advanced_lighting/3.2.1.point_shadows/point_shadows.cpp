@@ -82,20 +82,20 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("3.2.1.point_shadows.vs", "3.2.1.point_shadows.fs");
-    Shader simpleDepthShader("3.2.1.point_shadows_depth.vs", "3.2.1.point_shadows_depth.fs", "3.2.1.point_shadows_depth.gs");    
+    Shader shader("3.2.1.point_shadows.vs", "3.2.1.point_shadows.fs"); // wyh
+    Shader simpleDepthShader("3.2.1.point_shadows_depth.vs", "3.2.1.point_shadows_depth.fs", "3.2.1.point_shadows_depth.gs"); // wyh
 
     // load textures
     // -------------
-    unsigned int woodTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str());
+    unsigned int woodTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str()); // wyh
 
     // configure depth map FBO
     // -----------------------
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    unsigned int depthMapFBO;
+    unsigned int depthMapFBO; // wyh
     glGenFramebuffers(1, &depthMapFBO);
     // create depth cubemap texture
-    unsigned int depthCubemap;
+    unsigned int depthCubemap; // wyh 熟悉的巨头会晤; 核心: 和3.1不同点在于, 这里变成了立方体深度贴图
     glGenTextures(1, &depthCubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
     for (unsigned int i = 0; i < 6; ++i)
@@ -104,10 +104,10 @@ int main()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); // wyh 这些地方都变成了立方体的纹理
     // attach depth texture as FBO's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0); // wyh 熟悉的GL_DEPTH_ATTACHMENT, 深度缓冲附件
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -157,6 +157,7 @@ int main()
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        // wyh 这就是gs里面看到的, 几何着色器的对1分为6的位置的变换, 为了一口气在立方体的6个面进行深度贴图写入; 应该仅仅是1个模型变换引起位置改动之类的矩阵
 
         // 1. render scene to depth cubemap
         // --------------------------------
@@ -165,9 +166,9 @@ int main()
             glClear(GL_DEPTH_BUFFER_BIT);
             simpleDepthShader.use();
             for (unsigned int i = 0; i < 6; ++i)
-                simpleDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-            simpleDepthShader.setFloat("far_plane", far_plane);
-            simpleDepthShader.setVec3("lightPos", lightPos);
+                simpleDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]); // wyh
+            simpleDepthShader.setFloat("far_plane", far_plane); // wyh 传入为了归一化光照距离
+            simpleDepthShader.setVec3("lightPos", lightPos); // wyh 为了计算光照距离等
             renderScene(simpleDepthShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

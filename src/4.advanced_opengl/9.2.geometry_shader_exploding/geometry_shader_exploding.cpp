@@ -76,11 +76,11 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("9.2.geometry_shader.vs", "9.2.geometry_shader.fs", "9.2.geometry_shader.gs");
+    Shader shader("9.2.geometry_shader.vs", "9.2.geometry_shader.fs", "9.2.geometry_shader.gs"); // wyh
 
     // load models
     // -----------
-    Model nanosuit(FileSystem::getPath("resources/objects/nanosuit/nanosuit.obj")); 
+    Model nanosuit(FileSystem::getPath("resources/objects/nanosuit/nanosuit.obj")); // wyh 加载模型 纳米服
 
     // render loop
     // -----------
@@ -103,7 +103,7 @@ int main()
 
         // configure transformation matrices
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 1.0f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();;
+        glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
         shader.use();
         shader.setMat4("projection", projection);
@@ -111,10 +111,10 @@ int main()
         shader.setMat4("model", model);
 
         // add time component to geometry shader in the form of a uniform
-        shader.setFloat("time", static_cast<float>(glfwGetTime()));
+        shader.setFloat("time", static_cast<float>(glfwGetTime())); // wyh
 
         // draw model
-        nanosuit.Draw(shader);
+        nanosuit.Draw(shader); // wyh
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

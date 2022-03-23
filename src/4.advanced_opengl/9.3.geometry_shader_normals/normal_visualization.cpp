@@ -82,7 +82,7 @@ int main()
     // load models
     // -----------
     stbi_set_flip_vertically_on_load(true);
-    Model backpack(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
+    Model backpack(FileSystem::getPath("resources/objects/backpack/backpack.obj")); // wyh
 
     // render loop
     // -----------
@@ -113,7 +113,7 @@ int main()
         shader.setMat4("model", model);
 
         // draw model as usual
-        backpack.Draw(shader);
+        backpack.Draw(shader); // wyh 正常读取模型的shader
 
         // then draw model with normal visualizing geometry shader
         normalShader.use();
@@ -121,7 +121,7 @@ int main()
         normalShader.setMat4("view", view);
         normalShader.setMat4("model", model);
 
-        backpack.Draw(normalShader);
+        backpack.Draw(normalShader); // wyh 法线可视化的shader, 多根黄毛
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -83,9 +83,9 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("3.1.2.shadow_mapping.vs", "3.1.2.shadow_mapping.fs");
-    Shader simpleDepthShader("3.1.2.shadow_mapping_depth.vs", "3.1.2.shadow_mapping_depth.fs");
-    Shader debugDepthQuad("3.1.2.debug_quad.vs", "3.1.2.debug_quad_depth.fs");
+    Shader shader("3.1.2.shadow_mapping.vs", "3.1.2.shadow_mapping.fs"); // wyh 阴影的颜色纹理; 这个shader真正用于渲染地板和箱子的颜色, 包含了阴影(可见或不可见, 包含环境光)
+    Shader simpleDepthShader("3.1.2.shadow_mapping_depth.vs", "3.1.2.shadow_mapping_depth.fs"); // wyh 深度纹理
+    Shader debugDepthQuad("3.1.2.debug_quad.vs", "3.1.2.debug_quad_depth.fs"); // wyh 四边形帧缓冲纹理, 用于对深度贴图的可视化
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -100,7 +100,7 @@ int main()
          25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
     };
     // plane VAO
-    unsigned int planeVBO;
+    unsigned int planeVBO; // wyh 地面
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
     glBindVertexArray(planeVAO);
@@ -116,14 +116,14 @@ int main()
 
     // load textures
     // -------------
-    unsigned int woodTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str());
+    unsigned int woodTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str()); // wyh 这个wood到底干嘛用的; 地面和箱子的木头纹理
 
-    // configure depth map FBO
+    // configure depth map FBO // wyh 首先，我们要为渲染的深度贴图创建一个帧缓冲对象, depthMapFBO和depthMap是桥梁
     // -----------------------
-    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024; // wyh 深度贴图的分辨率
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
-    // create depth texture
+    // create depth texture // wyh 创建深度贴图
     unsigned int depthMap;
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -132,12 +132,13 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // attach depth texture as FBO's depth buffer
+    // attach depth texture as FBO's depth buffer // wyh 巨头会晤！！！depthMapFBO和depthMap桥梁的联系
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // wyh 所以目前的理解就是, FBO缓冲depthMapFBO就跟VBO之流类似, 作为中间缓冲, 最终需要存到纹理里depthMap
 
 
     // shader configuration
@@ -184,11 +185,11 @@ int main()
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO); // wyh depthMapFBO
             glClear(GL_DEPTH_BUFFER_BIT);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, woodTexture);
-            renderScene(simpleDepthShader);
+            renderScene(simpleDepthShader); // wyh 这个simpleDepthShader纯纯的是在写入深度贴图的深度值, 猜测是写到depthMapFBO里, 然后存到depthMap里, 然后才有后面的shader里texture(shadowMap...）读取过程
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
@@ -211,17 +212,17 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shader);
+        glBindTexture(GL_TEXTURE_2D, depthMap); // wyh 主流渲染地板、箱子流程, 
+        renderScene(shader); // wyh 这个shader真正用于渲染地板和箱子的颜色, 包含了阴影(可见或不可见, 包含环境光)
 
-        // render Depth map to quad for visual debugging
+        // render Depth map to quad for visual debugging // wyh debugDepthQuad这个shader仍然是为了可视化, 但在3.2真的没看出来作用
         // ---------------------------------------------
         debugDepthQuad.use();
         debugDepthQuad.setFloat("near_plane", near_plane);
         debugDepthQuad.setFloat("far_plane", far_plane);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        //renderQuad();
+        //renderQuad(); // wyh 我就说这东西3.2 3.3没用
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -242,7 +243,7 @@ int main()
 // --------------------
 void renderScene(const Shader &shader)
 {
-    // floor
+    // floor // wyh 渲染地板
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
     glBindVertexArray(planeVAO);
@@ -252,18 +253,18 @@ void renderScene(const Shader &shader)
     model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
     model = glm::scale(model, glm::vec3(0.5f));
     shader.setMat4("model", model);
-    renderCube();
+    renderCube(); // wyh 渲染立方体
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
     model = glm::scale(model, glm::vec3(0.5f));
     shader.setMat4("model", model);
-    renderCube();
+    renderCube(); // wyh 渲染立方体
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
     model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     model = glm::scale(model, glm::vec3(0.25));
     shader.setMat4("model", model);
-    renderCube();
+    renderCube(); // wyh 渲染立方体
 }
 
 
