@@ -79,6 +79,7 @@ int main()
     // ------------------------------------
     Shader lightingShader("1.colors.vs", "1.colors.fs");
     Shader lightCubeShader("1.light_cube.vs", "1.light_cube.fs");
+    // wyh 分别定义2个shader类
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -126,7 +127,7 @@ int main()
         -0.5f,  0.5f, -0.5f, 
     };
     // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO;
+    unsigned int VBO, cubeVAO; // wyh 1个cubeVAO, 说老实话没太明白为啥2组VAO, 1组VBO. VBO懂了
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
 
@@ -140,12 +141,13 @@ int main()
     glEnableVertexAttribArray(0);
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    unsigned int lightCubeVAO;
+    // wyh 然而接下来的教程中我们会频繁地对顶点数据和属性指针做出修改，我们并不想让这些修改影响到灯（我们只关心灯的顶点位置），因此我们有必要为灯创建一个新的VAO
+    unsigned int lightCubeVAO; // wyh 一个lightCubeVAO, 为灯单独创建VAO, 但共用VBO
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // wyh VBO已经绑定了, 再次绑定是出于教学目的
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -172,23 +174,23 @@ int main()
         
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f); // wyh 物体颜色珊瑚
+        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f); // wyh 灯颜色固定
+        // wyh 从上述2句看出, lightingShader是物体, 所以lightCubeShader是灯
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("projection", projection); // wyh 投影矩阵没花样
+        lightingShader.setMat4("view", view); // wyh 观察矩阵没花样
 
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        lightingShader.setMat4("model", model);
+        lightingShader.setMat4("model", model); // wyh 模型矩阵没花样
 
         // render the cube
         glBindVertexArray(cubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
         // also draw the lamp object
         lightCubeShader.use();
@@ -197,11 +199,11 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
+        lightCubeShader.setMat4("model", model); // wyh 模型矩阵有花样, 灯先平移后缩小, 摆放到世界空间的位置上去
+        // wyh 这下懂了为啥要用同一个VBO, 因为物体和灯顶点共用, 只是灯后来位置变化了
 
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -77,8 +77,8 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader lightingShader("3.1.materials.vs", "3.1.materials.fs");
-    Shader lightCubeShader("3.1.light_cube.vs", "3.1.light_cube.fs");
+    Shader lightingShader("3.1.materials.vs", "3.1.materials.fs"); // wyh 物体shader, 但也包含灯
+    Shader lightCubeShader("3.1.light_cube.vs", "3.1.light_cube.fs"); // wyh 灯shader
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -88,7 +88,7 @@ int main()
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, // wyh 虽然是1个顶点1个法线, 但是这个面的6个顶点的法线都是一样的
 
         -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
          0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
@@ -175,8 +175,8 @@ int main()
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
-        lightingShader.setVec3("viewPos", camera.Position);
+        lightingShader.setVec3("light.position", lightPos); // wyh uniform可以这样赋值
+        lightingShader.setVec3("viewPos", camera.Position); // wyh 观测坐标, 即摄像机位置(统一世界空间计算)
 
         // light properties
         glm::vec3 lightColor;
@@ -187,13 +187,13 @@ int main()
         glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
         lightingShader.setVec3("light.ambient", ambientColor);
         lightingShader.setVec3("light.diffuse", diffuseColor);
-        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f); // wyh 自定义灯的颜色
 
         // material properties
         lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
         lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
         lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
-        lightingShader.setFloat("material.shininess", 32.0f);
+        lightingShader.setFloat("material.shininess", 32.0f); // wyh 自定义物体材质的颜色
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
