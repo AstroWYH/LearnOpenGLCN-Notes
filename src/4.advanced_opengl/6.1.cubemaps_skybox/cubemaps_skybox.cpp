@@ -74,12 +74,12 @@ int main()
 
     // configure global opengl state
     // -----------------------------
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); // wyh 开启深度测试, 记住深度写入是带mask的那个函数
 
     // build and compile shaders
     // -------------------------
-    Shader shader("6.1.cubemaps.vs", "6.1.cubemaps.fs");
-    Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs");
+    Shader shader("6.1.cubemaps.vs", "6.1.cubemaps.fs"); // wyh 箱子的shader
+    Shader skyboxShader("6.1.skybox.vs", "6.1.skybox.fs"); // wyh 天空盒的shader
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -127,7 +127,7 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
-    float skyboxVertices[] = {
+    float skyboxVertices[] = { // wyh 6.1天空盒的顶点和纹理坐标共用了, 因为该纹理的方向向量正好和顶点坐标一致
         // positions          
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -184,7 +184,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     // skybox VAO
-    unsigned int skyboxVAO, skyboxVBO;
+    unsigned int skyboxVAO, skyboxVBO; // wyh 天空盒的VAO、VBO
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
     glBindVertexArray(skyboxVAO);
@@ -197,7 +197,7 @@ int main()
     // -------------
     unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/container.jpg").c_str());
 
-    vector<std::string> faces
+    vector<std::string> faces // wyh 天空盒的6个面的纹理
     {
         FileSystem::getPath("resources/textures/skybox/right.jpg"),
         FileSystem::getPath("resources/textures/skybox/left.jpg"),
@@ -206,7 +206,7 @@ int main()
         FileSystem::getPath("resources/textures/skybox/front.jpg"),
         FileSystem::getPath("resources/textures/skybox/back.jpg")
     };
-    unsigned int cubemapTexture = loadCubemap(faces);
+    unsigned int cubemapTexture = loadCubemap(faces); // wyh
 
     // shader configuration
     // --------------------
@@ -251,18 +251,18 @@ int main()
         glBindVertexArray(0);
 
         // draw skybox as last
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content // wyh 深度测试改为<=, 让天空盒z=1通过最远(1)的深度测试; 由此可知深度缓冲最大值为1
         skyboxShader.use();
-        view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix // wyh 观察矩阵4->3->4, 移除平移部分, 据说是为了让相机移动时不会靠近天空盒, 但还没搞懂原理
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
         // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); // wyh 立方体贴图(天空盒)的纹理绑定
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        glDepthFunc(GL_LESS); // set depth function back to default // wyh 深度测试改回来Less
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -384,11 +384,11 @@ unsigned int loadTexture(char const * path)
 // +Z (front) 
 // -Z (back)
 // -------------------------------------------------------
-unsigned int loadCubemap(vector<std::string> faces)
+unsigned int loadCubemap(vector<std::string> faces) // wyh 新增函数, 加载立方体贴图(天空盒)纹理
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); // wyh
 
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
@@ -396,7 +396,7 @@ unsigned int loadCubemap(vector<std::string> faces)
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // wyh 用来表示立方体贴图的6个特殊纹理
             stbi_image_free(data);
         }
         else
@@ -407,9 +407,9 @@ unsigned int loadCubemap(vector<std::string> faces)
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // wyh GL_CLAMP_TO_EDGE, 对两个面之间采样的时候，永远返回它们的边界值
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); // wyh 纹理的第三个维度, 因为是立方体
 
     return textureID;
 }

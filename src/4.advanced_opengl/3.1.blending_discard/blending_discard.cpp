@@ -135,7 +135,7 @@ int main()
         -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f
     };
-    float transparentVertices[] = {
+    float transparentVertices[] = { // wyh 草纹理的依靠, 四边形的顶点位置
         // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
         0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
@@ -146,7 +146,7 @@ int main()
         1.0f,  0.5f,  0.0f,  1.0f,  0.0f
     };
     // cube VAO
-    unsigned int cubeVAO, cubeVBO;
+    unsigned int cubeVAO, cubeVBO; // wyh 箱子VAO、VBO
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &cubeVBO);
     glBindVertexArray(cubeVAO);
@@ -157,7 +157,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     // plane VAO
-    unsigned int planeVAO, planeVBO;
+    unsigned int planeVAO, planeVBO; // wyh 地面VAO、VBO
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
     glBindVertexArray(planeVAO);
@@ -168,7 +168,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     // transparent VAO
-    unsigned int transparentVAO, transparentVBO;
+    unsigned int transparentVAO, transparentVBO; // wyh 草纹理贴的四边形VAO、VBO
     glGenVertexArrays(1, &transparentVAO);
     glGenBuffers(1, &transparentVBO);
     glBindVertexArray(transparentVAO);
@@ -184,11 +184,11 @@ int main()
     // -------------
     unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/marble.jpg").c_str());
     unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/grass.png").c_str());
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/grass.png").c_str()); // wyh 3张纹理
 
     // transparent vegetation locations
     // --------------------------------
-    vector<glm::vec3> vegetation 
+    vector<glm::vec3> vegetation // wyh 把草纹理的依靠, 四边形的顶点在世界空间中移动到6个位置上, 形成6个散落的草
     {
         glm::vec3(-1.5f, 0.0f, -0.48f),
         glm::vec3( 1.5f, 0.0f, 0.51f),
@@ -237,23 +237,23 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        shader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        shader.setMat4("model", model); // wyh 1个shader管3种物体(箱子、地面、草四边形), 说明如果不需要额外的FragColor着色方式的话, 1个shader就能通过切换搞定一切
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh 绘制箱子
         // floor
         glBindVertexArray(planeVAO);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         model = glm::mat4(1.0f);
         shader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 绘制地面
         // vegetation
         glBindVertexArray(transparentVAO);
         glBindTexture(GL_TEXTURE_2D, transparentTexture);
         for (unsigned int i = 0; i < vegetation.size(); i++)
         {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, vegetation[i]);
+            model = glm::translate(model, vegetation[i]); // wyh 世界空间平移的草四边形
             shader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 绘制6个草四边形
         }
 
 
@@ -354,6 +354,7 @@ unsigned int loadTexture(char const * path)
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        // wyh 教程: 由于我们使用了透明值，纹理图像的顶部将会与底部边缘的纯色值进行插值。这样的结果是一个半透明的有色边框，你可能会看见它环绕着你的纹理四边形; 所以改成GL_CLAMP_TO_EDGE
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

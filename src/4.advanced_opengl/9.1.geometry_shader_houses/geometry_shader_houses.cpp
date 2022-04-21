@@ -50,11 +50,11 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("9.1.geometry_shader.vs", "9.1.geometry_shader.fs", "9.1.geometry_shader.gs");
+    Shader shader("9.1.geometry_shader.vs", "9.1.geometry_shader.fs", "9.1.geometry_shader.gs"); // wyh
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float points[] = {
+    float points[] = { // wyh 前2位是顶点坐标, 后3位是颜色, 4个顶点生成4个房子(每1个顶点生成5个点)
         -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // top-left
          0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // top-right
          0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom-right
@@ -84,7 +84,7 @@ int main()
         // draw points
         shader.use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, 4);
+        glDrawArrays(GL_POINTS, 0, 4); // wyh 实际上只渲染了4个点, 后来变成了4个房子...
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

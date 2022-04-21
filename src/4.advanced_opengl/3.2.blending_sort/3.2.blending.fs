@@ -9,3 +9,4 @@ void main()
 {             
     FragColor = texture(texture1, TexCoords);
 }
+// wyh 相比于透明度测试, 透明度混合这里完全不需要做手脚

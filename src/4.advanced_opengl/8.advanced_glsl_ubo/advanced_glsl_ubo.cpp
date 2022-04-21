@@ -77,7 +77,7 @@ int main()
     Shader shaderRed("8.advanced_glsl.vs", "8.red.fs");
     Shader shaderGreen("8.advanced_glsl.vs", "8.green.fs");
     Shader shaderBlue("8.advanced_glsl.vs", "8.blue.fs");
-    Shader shaderYellow("8.advanced_glsl.vs", "8.yellow.fs");
+    Shader shaderYellow("8.advanced_glsl.vs", "8.yellow.fs"); // wyh
     
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -141,25 +141,26 @@ int main()
     unsigned int uniformBlockIndexRed = glGetUniformBlockIndex(shaderRed.ID, "Matrices");
     unsigned int uniformBlockIndexGreen = glGetUniformBlockIndex(shaderGreen.ID, "Matrices");
     unsigned int uniformBlockIndexBlue = glGetUniformBlockIndex(shaderBlue.ID, "Matrices");
-    unsigned int uniformBlockIndexYellow = glGetUniformBlockIndex(shaderYellow.ID, "Matrices");
+    unsigned int uniformBlockIndexYellow = glGetUniformBlockIndex(shaderYellow.ID, "Matrices"); // wyh Uniform块(block)索引(Uniform Block Index)是着色器中已定义Uniform块的位置值索引, 这可以通过调用glGetUniformBlockIndex来获取
     // then we link each shader's uniform block to this uniform binding point
     glUniformBlockBinding(shaderRed.ID, uniformBlockIndexRed, 0);
     glUniformBlockBinding(shaderGreen.ID, uniformBlockIndexGreen, 0);
     glUniformBlockBinding(shaderBlue.ID, uniformBlockIndexBlue, 0);
-    glUniformBlockBinding(shaderYellow.ID, uniformBlockIndexYellow, 0);
+    glUniformBlockBinding(shaderYellow.ID, uniformBlockIndexYellow, 0); // wyh 将shader里uniform块(block)绑定到绑定点0
     // Now actually create the buffer
     unsigned int uboMatrices;
-    glGenBuffers(1, &uboMatrices);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glGenBuffers(1, &uboMatrices); // wyh 核心: uniform缓冲对象创建(还有vs里uniform块创建, 优势见教程)
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices); // wyh 创建uniform缓冲对象, 绑定到GL_UNIFORM_BUFFER, 用glBufferData分配内存
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW); // wyh 正好分配2个mat的大小, 投影和观测矩阵
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     // define the range of the buffer that links to a uniform binding point
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4)); // wyh 将uniform缓冲绑定到相同的绑定点0
 
     // store the projection matrix (we only do this once now) (note: we're not using zoom anymore by changing the FoV)
-    glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); // wyh 这里固定了zoom, 是为了举例如果投影矩阵一直不变, 就可以只执行1次
     glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection)); // wyh Uniform缓冲前半段存投影矩阵, glBufferSubData前面学的灵活填buffer, 得到了应用
+    // wyh glBufferSubData需要参数, 缓冲名字、偏移量、大小、内容
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
   
     // render loop
@@ -182,9 +183,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // set the view and projection matrix in the uniform block - we only have to do this once per loop iteration.
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = camera.GetViewMatrix(); // wyh 观测矩阵放到while里, 是因为观测矩阵是会随着摄像机变化变化的
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view)); // wyh Uniform缓冲后半段存观测矩阵, glBufferSubData前面学的灵活填buffer, 得到了应用
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         // draw 4 cubes 
@@ -194,25 +195,25 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-0.75f, 0.75f, 0.0f)); // move top-left
         shaderRed.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh
         // GREEN
         shaderGreen.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.75f, 0.75f, 0.0f)); // move top-right
         shaderGreen.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh
         // YELLOW
         shaderYellow.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-0.75f, -0.75f, 0.0f)); // move bottom-left
         shaderYellow.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh
         // BLUE
         shaderBlue.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.75f, -0.75f, 0.0f)); // move bottom-right
         shaderBlue.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // wyh
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
