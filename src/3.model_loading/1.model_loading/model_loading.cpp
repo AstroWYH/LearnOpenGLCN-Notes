@@ -8,7 +8,7 @@
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
-#include <learnopengl/model.h>
+#include <learnopengl/model.h> // wyh 3.2加入的头文件
 
 #include <iostream>
 
@@ -82,7 +82,8 @@ int main()
 
     // load models
     // -----------
-    Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
+    Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj")); // wyh 加载模型
+    // wyh 注意所有的纹理和模型文件应该位于同一个目录下, 以供加载纹理
 
     
     // draw in wireframe
@@ -121,7 +122,7 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        ourModel.Draw(ourShader); // wyh 传入好像也就是给纹理的uniform sampler2D赋值
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
