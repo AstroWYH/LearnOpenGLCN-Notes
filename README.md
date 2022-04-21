@@ -1,5 +1,7 @@
 ## OpenGL学习笔记--Astro WANG
-## 说明：执行该脚本可获取Learning OpenGL配置完整工程代码
+[说明]执行该脚本可获取Learning OpenGL配置完整工程代码
+
+```
 #!/bin/sh
 
 # This script will download the dependencies for the Learning
@@ -136,3 +138,4 @@ if [ $? -ne 0 ] ; then
     echo "Failed to build PBR."
     exit
 fi
+```
