@@ -1,49 +1,136 @@
-# learnopengl.com code repository
-Contains code samples for all chapters of Learn OpenGL and [https://learnopengl.com](https://learnopengl.com). 
+#!/bin/sh
 
-## Windows building
-All relevant libraries are found in /libs and all DLLs found in /dlls (pre-)compiled for Windows. 
-The CMake script knows where to find the libraries so just run CMake script and generate project of choice.
-Note that you still have to manually copy the required .DLL files from the /dlls folder to your binary folder for the binaries to run.
+# This script will download the dependencies for the Learning
+# OpenGL repository and compiles the source code once the
+# dependencies have been installed in the install directory. The
+# install directory is `../install` relative to this file.
+#
+# This downloads and installs
+#
+# - glfw
+# - glm
+# - assimp
+# - learning opengl
 
-Keep in mind the supplied libraries were generated with a specific compiler version which may or may not work on your system (generating a large batch of link errors). In that case it's advised to build the libraries yourself from the source.
+d=${PWD}
+bd=${d}/../
+build_dir=${d}/build.unix
+id=${bd}/install/
 
-## Linux building
-First make sure you have CMake, Git, and GCC by typing as root (sudo) `apt-get install g++ cmake git` and then get the required packages:
-Using root (sudo) and type `apt-get install libsoil-dev libglm-dev libassimp-dev libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev  libxi-dev libfreetype-dev libgl1-mesa-dev xorg-dev` .
-Next, run CMake (preferably CMake-gui). The source directory is LearnOpenGL and specify the build directory as LearnOpenGL/build. Creating the build directory within LearnOpenGL is important for linking to the resource files (it also will be ignored by Git). Hit configure and specify your compiler files (Unix Makefiles are recommended), resolve any missing directories or libraries, and then hit generate. Navigate to the build directory (`cd LearnOpenGL/build`) and type `make` in the terminal. This should generate the executables in the respective chapter folders.
+if [ ! -d ${build_dir} ] ; then
+    mkdir ${build_dir}
+fi
 
-Note that CodeBlocks or other IDEs may have issues running the programs due to problems finding the shader and resource files, however it should still be able to generate the exectuables. To work around this problem it is possible to set an environment variable to tell the tutorials where the resource files can be found. The environment variable is named LOGL_ROOT_PATH and may be set to the path to the root of the LearnOpenGL directory tree. For example:
+if [ ! -d ${id} ] ; then
+    mkdir ${id}
+fi
 
-    `export LOGL_ROOT_PATH=/home/user/tutorials/LearnOpenGL`
+# GLFW
+if [ ! -d ${build_dir}/glfw ] ; then
+    mkdir ${build_dir}/glfw
+    cd ${build_dir}/glfw
+    git clone --depth 1 git@github.com:glfw/glfw.git .
+    cd glfw
+    git checkout 53c8c72c676ca97c10aedfe3d0eb4271c5b23dba
+fi
+if [ ! -d ${build_dir}/glfw/build ] ; then 
+    mkdir ${build_dir}/glfw/build
+fi
 
-Running `ls $LOGL_ROOT_PATH` should list, among other things, this README file and the resources direcory.
+cd ${build_dir}/glfw/build
+cmake -DGLFW_BUILD_TESTS=Off \
+      -DGLFW_BUILD_DOCS=Off \
+      -DGLFW_BUILD_EXAMPLES=Off \
+      -DCMAKE_INSTALL_PREFIX=${id} \
+      ..
 
-### Linux building in Docker
-Using [this project](https://github.com/01e9/docker-ide) you can start IDE in docker:
-```
-.../docker-ide/ide cpp-gpu ~/.../clion/bin/clion.sh -x11docker "--gpu"
-```
+if [ $? -ne 0 ] ; then
+    echo "Failed to configure GLFW"
+    exit
+fi
 
-## Mac OS X building
-Building on Mac OS X is fairly simple (thanks [@hyperknot](https://github.com/hyperknot)):
-```
-brew install cmake assimp glm glfw
-mkdir build
-cd build
-cmake ../.
-make -j8
-```
-## Create Xcode project on Mac platform
-Thanks [@caochao](https://github.com/caochao):
-After cloning the repo, go to the root path of the repo, and run the command below:
-```
-mkdir xcode
-cd xcode
-cmake -G Xcode ..
-```
+cmake --build . --target install -- -j8
+if [ $? -ne 0 ] ; then
+    echo "Failed to build GLFW"
+    exit
+fi
 
-## Glitter
-Polytonic created a project called [Glitter](https://github.com/Polytonic/Glitter) that is a dead-simple boilerplate for OpenGL. 
-Everything you need to run a single LearnOpenGL Project (including all libraries) and just that; nothing more. 
-Perfect if you want to follow along with the chapters, without the hassle of having to manually compile and link all third party libraries!
+# GLM
+if [ ! -d ${build_dir}/glm ] ; then
+    cd ${build_dir}
+    git clone --depth 1 git@github.com:g-truc/glm.git
+    cd glm
+    git checkout ddebaba03308475b1e33670267eadd596d039949
+fi
+
+if [ ! -d ${build_dir}/glm/build ] ; then
+    mkdir ${build_dir}/glm/build
+fi
+
+cd ${build_dir}/glm/build
+cmake -DCMAKE_INSTALL_PREFIX=${id} \
+      -DGLM_TEST_ENABLE=Off \
+      ..
+
+if [ $? -ne 0 ] ; then
+    echo "Failed to configure GLM"
+    exit
+fi
+
+cmake --build . --target install
+if [ $? -ne 0 ] ; then
+    echo :"Failed to install and build GLM"
+    exit
+fi
+
+# ASSIMP
+if [ ! -d ${build_dir}/assimp ] ; then
+    cd ${build_dir}
+    git clone --depth 1 git@github.com:assimp/assimp.git
+    cd assimp
+    git checkout 3fbe9095d157ecacf6a9549c9a21bf2ad3110ac6
+fi
+
+if [ ! -d ${build_dir}/assimp/build ] ; then
+    mkdir ${build_dir}/assimp/build
+fi
+
+cd ${build_dir}/assimp/build
+cmake -DCMAKE_INSTALL_PREFIX=${id} \
+      -DASSIMP_BUILD_TESTS=Off \
+      -DASSIMP_INSTALL_PDB=Off \
+      ..
+if [ $? -ne 0 ] ; then
+    echo "Failed to configure assimp."
+    exit
+fi
+
+cmake --build . --target install -- -j8
+if [ $? -ne 0 ] ; then
+    echo "Failed to build and install assimp"
+    exit
+fi
+
+# Learning GL
+if [ ! -d ${build_dir}/learninggl ] ; then
+    cd ${build_dir}
+    git clone --depth 1 git@github.com:JoeyDeVries/LearnOpenGL.git learninggl
+    cd learninggl
+    git checkout e2d82e2cfba74d8ed3cc2ee40f71b2bc93867eae
+fi
+
+cd ${build_dir}/learninggl
+cmake -DCMAKE_PREFIX_PATH=${id} \
+      -DCMAKE_INSTALL_PREFIX=${id} \
+      ../../../
+
+if [ $? -ne 0 ] ; then
+    echo "Failed to configure PBR."
+    exit
+fi
+
+cmake --build . -- -j8
+if [ $? -ne 0 ] ; then
+    echo "Failed to build PBR."
+    exit
+fi
