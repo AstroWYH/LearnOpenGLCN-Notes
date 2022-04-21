@@ -83,9 +83,9 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("3.1.3.shadow_mapping.vs", "3.1.3.shadow_mapping.fs");
-    Shader simpleDepthShader("3.1.3.shadow_mapping_depth.vs", "3.1.3.shadow_mapping_depth.fs");
-    Shader debugDepthQuad("3.1.3.debug_quad.vs", "3.1.3.debug_quad_depth.fs");
+    Shader shader("3.1.3.shadow_mapping.vs", "3.1.3.shadow_mapping.fs"); // wyh
+    Shader simpleDepthShader("3.1.3.shadow_mapping_depth.vs", "3.1.3.shadow_mapping_depth.fs"); // wyh
+    Shader debugDepthQuad("3.1.3.debug_quad.vs", "3.1.3.debug_quad_depth.fs"); // wyh
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -121,10 +121,10 @@ int main()
     // configure depth map FBO
     // -----------------------
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    unsigned int depthMapFBO;
+    unsigned int depthMapFBO; // wyh
     glGenFramebuffers(1, &depthMapFBO);
     // create depth texture
-    unsigned int depthMap;
+    unsigned int depthMap; // wyh
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -196,7 +196,7 @@ int main()
             glClear(GL_DEPTH_BUFFER_BIT);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, woodTexture);
-            renderScene(simpleDepthShader);
+            renderScene(simpleDepthShader); // wyh 写深度贴图, 也需要走一遍场景里的如地面、箱子之类的流程
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
@@ -220,7 +220,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shader);
+        renderScene(shader); // wyh 正常渲染流程
 
         // render Depth map to quad for visual debugging
         // ---------------------------------------------
