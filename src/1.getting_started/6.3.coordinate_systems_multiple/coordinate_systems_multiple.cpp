@@ -232,7 +232,7 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            ourShader.setMat4("model", model);
+            ourShader.setMat4("model", model); // wyh model的赋值比v、p更灵活一点
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

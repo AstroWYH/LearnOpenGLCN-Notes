@@ -7,8 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <learnopengl/filesystem.h>
-#include <learnopengl/shader_m.h>
-#include <learnopengl/camera.h>
+#include <learnopengl/shader_m.h> // wyh
+#include <learnopengl/camera.h> // wyh
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // wyh 初始化传入, 摄像机在世界空间的pos(有点问题)
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;

@@ -47,7 +47,7 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("3.3.shader.vs", "3.3.shader.fs"); // you can name your shader files however you like
+    Shader ourShader("3.3.shader.vs", "3.3.shader.fs"); // you can name your shader files however you like // wyh
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -68,10 +68,10 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // wyh 处理位置属性, 顶点属性0
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // wyh 处理位置属性, 顶点属性1
     glEnableVertexAttribArray(1);
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
@@ -93,7 +93,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // render the triangle
-        ourShader.use();
+        ourShader.use(); // wyh
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
