@@ -1,4 +1,4 @@
-## OpenGL学习笔记--Astro WANG
+## LearnOpenGLCN课程学习与代码注释--Astro WANG
 [说明] 执行该脚本可获取Learning OpenGL配置完整工程代码
 
 ```
