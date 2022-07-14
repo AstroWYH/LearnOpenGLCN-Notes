@@ -168,7 +168,7 @@ int main()
     unsigned int lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO); // wyh 虽然VBO共用了, 但又确实是两个顶点属性不同的cube, 所以有2个VAO?
-
+    // wyh 应该是正常情况就会有两套VAO，VBO，只不过这里VBO共用，所以只有一套VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // note that we update the lamp's position attribute's stride to reflect the updated buffer data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // wyh 灯(光源)的VBO, 顶点属性只包含顶点位置(和物体共用), 所以只有1个VBO
@@ -183,7 +183,7 @@ int main()
     // --------------------
     lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
-    lightingShader.setInt("material.specular", 1); // wyh
+    lightingShader.setInt("material.specular", 1); // wyh 通知采样器，让其知道它代表的是纹理单元1
 
 
     // render loop
@@ -280,8 +280,8 @@ int main()
         lightingShader.setMat4("model", model);
 
         // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glActiveTexture(GL_TEXTURE0); // wyh GL_TEXTURE0被称作纹理单元
+        glBindTexture(GL_TEXTURE_2D, diffuseMap); // wyh diffuseMap被称之为textureObject, 纹理对象
         // bind specular map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
@@ -410,7 +410,7 @@ unsigned int loadTexture(char const * path)
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID); // wyh textureID被称之为textureObject, 纹理对象
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 

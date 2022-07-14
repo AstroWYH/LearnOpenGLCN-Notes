@@ -147,7 +147,7 @@ int main()
          1.0f,  1.0f,  1.0f, 1.0f
     };
     // cube VAO
-    unsigned int cubeVAO, cubeVBO;
+    unsigned int cubeVAO, cubeVBO; // wyh 共3组VAO、VBO
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &cubeVBO);
     glBindVertexArray(cubeVAO);
@@ -188,7 +188,7 @@ int main()
     // shader configuration
     // --------------------
     shader.use();
-    shader.setInt("texture1", 0);
+    shader.setInt("texture1", 0); // wyh 难道是同一个shader id的纹理sample得0、1、2...，而不同的shader id可以是0、0、0...？
 
     screenShader.use();
     screenShader.setInt("screenTexture", 0); // wyh 屏幕大小的二维四边形的shader
@@ -256,7 +256,7 @@ int main()
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
         // cubes
-        glBindVertexArray(cubeVAO);
+        glBindVertexArray(cubeVAO); // wyh cube的VAO
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
@@ -267,7 +267,7 @@ int main()
         shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36); // wyh 渲染箱子2
         // floor
-        glBindVertexArray(planeVAO);
+        glBindVertexArray(planeVAO); // wyh plane的VAO
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         shader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染地面
@@ -284,7 +284,8 @@ int main()
         glBindVertexArray(quadVAO);
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
         glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染屏幕大小的四边形, 用颜色附件纹理作为四边形的纹理
-
+        // wyh 我们将会将场景渲染到一个附加到帧缓冲对象上的颜色纹理中, 之后将在一个横跨整个屏幕的四边形上绘制这个纹理
+        // wyh 这样视觉输出和没使用帧缓冲时是完全一样的
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

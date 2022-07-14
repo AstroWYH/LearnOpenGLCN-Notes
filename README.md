@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+## LearnOpenGLCN课程学习与代码注释--Astro WANG
+[说明] 执行该脚本可获取Learning OpenGL配置完整工程代码
+
+```
+>>>>>>> 977fde2937ba4c279cc7f2587ce1a41cde8c3183
 #!/bin/sh
 
 # This script will download the dependencies for the Learning
@@ -134,3 +141,7 @@ if [ $? -ne 0 ] ; then
     echo "Failed to build PBR."
     exit
 fi
+<<<<<<< HEAD
+=======
+```
+>>>>>>> 977fde2937ba4c279cc7f2587ce1a41cde8c3183
