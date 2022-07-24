@@ -50,9 +50,9 @@ public:
         // 2. compile shaders
         unsigned int vertex, fragment;
         // vertex shader
-        vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, NULL);
-        glCompileShader(vertex);
+        vertex = glCreateShader(GL_VERTEX_SHADER); // wyh 创建指定类型的新着色器对象
+        glShaderSource(vertex, 1, &vShaderCode, NULL); // wyh 加载着色器源代码(vsh)到着色器对象(vertex)
+        glCompileShader(vertex); // wyh 编译
         checkCompileErrors(vertex, "VERTEX");
         // fragment Shader
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -60,7 +60,7 @@ public:
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
         // shader Program
-        ID = glCreateProgram();
+        ID = glCreateProgram(); // wyh 创建一个程序对象，不同的着色器对象(vertex、fragment)需要链接到同一个程序对象(ID)上
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
         glLinkProgram(ID);
@@ -144,16 +144,16 @@ private:
         GLchar infoLog[1024];
         if (type != "PROGRAM")
         {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success); // wyh 确定编译的状态
             if (!success)
             {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                glGetShaderInfoLog(shader, 1024, NULL, infoLog); // wyh 打印输出生成的错误
                 std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }
         else
         {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+            glGetProgramiv(shader, GL_LINK_STATUS, &success); // wyh 确定链接的状态
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);

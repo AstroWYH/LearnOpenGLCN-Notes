@@ -246,8 +246,8 @@ int main()
         glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad) // wyh 重新开启深度测试, 是因为渲染四边形的时候关闭了
 
         // make sure we clear the framebuffer's content
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // wyh 缓冲区用指定颜色清楚，应该在glClear之前设置
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // wyh 清楚颜色、深度缓冲区
 
         shader.use();
         glm::mat4 model = glm::mat4(1.0f);
@@ -268,7 +268,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36); // wyh 渲染箱子2
         // floor
         glBindVertexArray(planeVAO); // wyh plane的VAO
-        glBindTexture(GL_TEXTURE_2D, floorTexture);
+        glBindTexture(GL_TEXTURE_2D, floorTexture); // wyh 为什么这里不需要active了?
         shader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染地面
         glBindVertexArray(0);
@@ -282,6 +282,7 @@ int main()
 
         screenShader.use();
         glBindVertexArray(quadVAO);
+        // wyh neon理解：之前是绑fbo(附件:textureColorbuffer)，正常其他物体离屏渲染到textureColorbuffer; 这里已经是textureColorbuffer的成果展示了
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
         glDrawArrays(GL_TRIANGLES, 0, 6); // wyh 渲染屏幕大小的四边形, 用颜色附件纹理作为四边形的纹理
         // wyh 我们将会将场景渲染到一个附加到帧缓冲对象上的颜色纹理中, 之后将在一个横跨整个屏幕的四边形上绘制这个纹理
@@ -289,7 +290,7 @@ int main()
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window); // wyh OpenGL ES3.0书上此处是eglSwapBuffers, glfw和egl是一个级别的东西
         glfwPollEvents();
     }
 
@@ -366,7 +367,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 unsigned int loadTexture(char const * path)
 {
     unsigned int textureID;
-    glGenTextures(1, &textureID);
+    glGenTextures(1, &textureID); // wyh 这个数应该是多少？
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
