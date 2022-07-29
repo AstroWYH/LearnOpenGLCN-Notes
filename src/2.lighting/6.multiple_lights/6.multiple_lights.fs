@@ -94,6 +94,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     // combine results
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords)); // wyh 环境光材质颜色与漫反射项一致, 后者取名为材质颜色?=系数K?=读取纹理的颜色?
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords)); // wyh K(材质/纹理结合的结果, 物体颜色) 和Unity Shader对应
+    // wyh 复习：以这个最简单的平行光的漫反射为例，light.diffuse其实可以理解一个ratio，如果没设光照就是相当于光照是(1.0,1.0,1.0)纯白光
+    // wyh 所以，就是从纹理(专门的漫反射纹理)和指定纹理坐标(遍历每个坐标)读取颜色，然后*一个ratio(漫反射光，比如0.2,0.2,0.2)，再*一个角度cos(光线,法线)
+    // wyh 就得到这个片元上的颜色(仅是平行光->漫反射的颜色，其他的还要叠加)
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)); // wyh Unity Shader最新说法, texture负责采样, material.diffuse是纹理
     return (ambient + diffuse + specular);
 }
