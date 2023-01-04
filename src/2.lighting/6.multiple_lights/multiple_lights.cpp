@@ -170,6 +170,8 @@ int main()
     glBindVertexArray(lightCubeVAO); // wyh 虽然VBO共用了, 但又确实是两个顶点属性不同的cube, 所以有2个VAO?
     // wyh 应该是正常情况就会有两套VAO，VBO，只不过这里VBO共用，所以只有一套VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // wyh 新理解：应该是立方体的6个面36个点就是vertices(VBO)，但是箱子、灯共用了，因为都是立方体，只不过灯后面scale缩小了。
+    // wyh 新理解：然后都位移成多个，箱子位移成10个，灯位移成4个。
     // note that we update the lamp's position attribute's stride to reflect the updated buffer data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // wyh 灯(光源)的VBO, 顶点属性只包含顶点位置(和物体共用), 所以只有1个VBO
     glEnableVertexAttribArray(0);
@@ -311,7 +313,7 @@ int main()
          {
              model = glm::mat4(1.0f);
              model = glm::translate(model, pointLightPositions[i]);
-             model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+             model = glm::scale(model, glm::vec3(0.2f)); // Make it a sm aller cube
              lightCubeShader.setMat4("model", model);
              glDrawArrays(GL_TRIANGLES, 0, 36);
          }

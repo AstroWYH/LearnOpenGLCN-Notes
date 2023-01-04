@@ -98,6 +98,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     // wyh 所以，就是从纹理(专门的漫反射纹理)和指定纹理坐标(遍历每个坐标)读取颜色，然后*一个ratio(漫反射光，比如0.2,0.2,0.2)，再*一个角度cos(光线,法线)
     // wyh 就得到这个片元上的颜色(仅是平行光->漫反射的颜色，其他的还要叠加)
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)); // wyh Unity Shader最新说法, texture负责采样, material.diffuse是纹理
+    // wyh 新理解：高光项，可以去看container2_specular.png这张高光项的纹理，就是箱子的边框有颜色(所谓金属)，中间都是黑的，而黑的部分上面公式计算得0，
+    // wyh 新理解：所以高光项的计算遍历只作用于边框，其实就是在箱子的边框上叠加了一层颜色(高光项)的意思，看起来就会有金属光泽。
     return (ambient + diffuse + specular);
 }
 
